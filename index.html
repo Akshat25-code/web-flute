@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
   <title>Web Flute – Indian Bansuri</title>
   <meta name="description" content="Play a beautiful Indian Bansuri flute in your browser. Free Play if you know how, or follow guided tutorials to learn."/>
+  <meta name="theme-color" content="#0a0806"/>
+  <meta property="og:title" content="Web Flute – Indian Bansuri"/>
+  <meta property="og:description" content="Play a real Indian Bansuri in your browser. Free Play or guided Learn Mode."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -15,18 +18,18 @@
   <canvas id="particles"></canvas>
 
   <!-- ─── First-visit onboarding overlay ─── -->
-  <div class="overlay" id="onboarding">
+  <div class="overlay" id="onboarding" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
     <div class="overlay-card">
-      <h2>🪈 Welcome to the Web Flute</h2>
+      <h2 id="onboarding-title">🪈 Welcome to the Web Flute</h2>
       <p>An Indian Bansuri you can play right in your browser.</p>
       <div class="overlay-choices">
-        <button class="choice" data-goto="free">
-          <span class="choice-emoji">🎶</span>
+        <button class="choice" data-goto="free" aria-label="I can play — go to Free Play mode">
+          <span class="choice-emoji" aria-hidden="true">🎶</span>
           <span class="choice-title">I can play</span>
           <span class="choice-sub">Jump straight into Free Play</span>
         </button>
-        <button class="choice" data-goto="learn">
-          <span class="choice-emoji">🎓</span>
+        <button class="choice" data-goto="learn" aria-label="Teach me — go to Learn Mode with guided tutorials">
+          <span class="choice-emoji" aria-hidden="true">🎓</span>
           <span class="choice-title">Teach me</span>
           <span class="choice-sub">Follow a guided tutorial</span>
         </button>
@@ -44,34 +47,35 @@
     </header>
 
     <!-- ─── Mode tabs ─── -->
-    <nav class="mode-tabs" id="mode-tabs">
-      <button class="mtab active" data-mode="free">🎶 Free Play</button>
-      <button class="mtab" data-mode="learn">🎓 Learn</button>
+    <nav class="mode-tabs" id="mode-tabs" aria-label="Play mode">
+      <button class="mtab active" data-mode="free" aria-pressed="true">🎶 Free Play</button>
+      <button class="mtab" data-mode="learn" aria-pressed="false">🎓 Learn</button>
     </nav>
 
     <!-- ─── Now Playing ─── -->
-    <div class="now-playing" id="now-playing">
-      <div class="note-ring" id="note-ring">
+    <div class="now-playing" id="now-playing" aria-live="polite" aria-label="Now playing">
+      <div class="note-ring" id="note-ring" aria-hidden="true">
         <span class="note-big" id="note-big">–</span>
       </div>
       <div class="note-info">
-        <span class="sargam-big" id="sargam-big">–</span>
-        <span class="note-western" id="note-western"></span>
+        <span class="sargam-big" id="sargam-big" aria-label="Current sargam note">–</span>
+        <span class="note-western" id="note-western" aria-label="Western note name"></span>
       </div>
     </div>
 
     <!-- ─── LEARN: song bar (only visible in Learn mode) ─── -->
-    <section class="learn-bar" id="learn-bar" hidden>
+    <section class="learn-bar" id="learn-bar" hidden aria-label="Learn mode controls">
       <div class="learn-row">
-        <select id="song-select"></select>
-        <button class="cbtn" id="btn-listen">▶ Listen</button>
-        <button class="cbtn on" id="btn-practice">🎯 Practice</button>
-        <button class="cbtn" id="btn-stop-song">■ Stop</button>
+        <label for="song-select" class="sr-only">Choose a song</label>
+        <select id="song-select" aria-label="Choose a song"></select>
+        <button class="cbtn" id="btn-listen" aria-pressed="false">▶ Listen</button>
+        <button class="cbtn on" id="btn-practice" aria-pressed="true">🎯 Practice</button>
+        <button class="cbtn" id="btn-stop-song" aria-label="Stop song">■ Stop</button>
       </div>
       <div class="learn-row">
-        <label class="tempo-label">Speed <span class="badge" id="tempo-val">100%</span></label>
-        <input id="tempo" type="range" min="40" max="120" value="100"/>
-        <div class="score-box">
+        <label class="tempo-label" for="tempo">Speed <span class="badge" id="tempo-val">100%</span></label>
+        <input id="tempo" type="range" min="40" max="120" value="100" aria-label="Playback speed"/>
+        <div class="score-box" aria-live="polite" aria-label="Score">
           <span>Score <b id="score-val">0</b></span>
           <span>Combo <b id="combo-val">0</b></span>
           <span>Acc <b id="acc-val">100%</b></span>
@@ -143,15 +147,15 @@
     </div>
 
     <!-- ─── Sargam Keys (8 – one octave) – shared by both modes ─── -->
-    <div class="keys-row" id="keys-row">
-      <button class="skey" data-idx="0"><span class="skey-label">Sa</span><span class="skey-kbd">A</span></button>
-      <button class="skey" data-idx="1"><span class="skey-label">Re</span><span class="skey-kbd">S</span></button>
-      <button class="skey" data-idx="2"><span class="skey-label">Ga</span><span class="skey-kbd">D</span></button>
-      <button class="skey" data-idx="3"><span class="skey-label">Ma</span><span class="skey-kbd">F</span></button>
-      <button class="skey" data-idx="4"><span class="skey-label">Pa</span><span class="skey-kbd">J</span></button>
-      <button class="skey" data-idx="5"><span class="skey-label">Dha</span><span class="skey-kbd">K</span></button>
-      <button class="skey" data-idx="6"><span class="skey-label">Ni</span><span class="skey-kbd">L</span></button>
-      <button class="skey skey-high" data-idx="7"><span class="skey-label">Sa'</span><span class="skey-kbd">;</span></button>
+    <div class="keys-row" id="keys-row" role="group" aria-label="Sargam keys — press and hold to play">
+      <button class="skey" data-idx="0" aria-label="Sa (keyboard: A)"><span class="skey-label" aria-hidden="true">Sa</span><span class="skey-kbd" aria-hidden="true">A</span></button>
+      <button class="skey" data-idx="1" aria-label="Re (keyboard: S)"><span class="skey-label" aria-hidden="true">Re</span><span class="skey-kbd" aria-hidden="true">S</span></button>
+      <button class="skey" data-idx="2" aria-label="Ga (keyboard: D)"><span class="skey-label" aria-hidden="true">Ga</span><span class="skey-kbd" aria-hidden="true">D</span></button>
+      <button class="skey" data-idx="3" aria-label="Ma (keyboard: F)"><span class="skey-label" aria-hidden="true">Ma</span><span class="skey-kbd" aria-hidden="true">F</span></button>
+      <button class="skey" data-idx="4" aria-label="Pa (keyboard: J)"><span class="skey-label" aria-hidden="true">Pa</span><span class="skey-kbd" aria-hidden="true">J</span></button>
+      <button class="skey" data-idx="5" aria-label="Dha (keyboard: K)"><span class="skey-label" aria-hidden="true">Dha</span><span class="skey-kbd" aria-hidden="true">K</span></button>
+      <button class="skey" data-idx="6" aria-label="Ni (keyboard: L)"><span class="skey-label" aria-hidden="true">Ni</span><span class="skey-kbd" aria-hidden="true">L</span></button>
+      <button class="skey skey-high" data-idx="7" aria-label="Upper Sa (keyboard: semicolon)"><span class="skey-label" aria-hidden="true">Sa'</span><span class="skey-kbd" aria-hidden="true">;</span></button>
     </div>
 
     <!-- ─── Visualizer ─── -->
@@ -160,14 +164,14 @@
     </div>
 
     <!-- ─── Controls ─── -->
-    <div class="controls">
+    <div class="controls" role="group" aria-label="Playback controls">
       <div class="ctrl">
-        <label>Volume <span class="badge" id="vol-val">65%</span></label>
-        <input id="volume" type="range" min="0" max="100" value="65"/>
+        <label for="volume">Volume <span class="badge" id="vol-val">65%</span></label>
+        <input id="volume" type="range" min="0" max="100" value="65" aria-label="Volume"/>
       </div>
       <div class="ctrl">
-        <label>Sa Root</label>
-        <select id="sa-root">
+        <label for="sa-root">Sa Root</label>
+        <select id="sa-root" aria-label="Sa root note (transpose)"
           <option value="0" selected>C</option>
           <option value="1">C#</option>
           <option value="2">D</option>
@@ -182,12 +186,12 @@
           <option value="11">B</option>
         </select>
       </div>
-      <button id="reverb-btn" class="cbtn on">🔊 Reverb</button>
-      <button id="tanpura-btn" class="cbtn" title="Background drone (Sa–Pa–Sa)">🎻 Tanpura</button>
-      <button id="engine-btn" class="cbtn" title="Switch between real samples and synthesis">🎛️ Synth</button>
+      <button id="reverb-btn" class="cbtn on" aria-pressed="true" aria-label="Toggle reverb effect">🔊 Reverb</button>
+      <button id="tanpura-btn" class="cbtn" aria-pressed="false" aria-label="Toggle tanpura background drone">🎻 Tanpura</button>
+      <button id="engine-btn" class="cbtn" aria-label="Switch between real samples and synthesis">🎛️ Synth</button>
       <div class="ctrl" id="tanpura-ctrl" hidden>
-        <label>Tanpura <span class="badge" id="tanpura-vol-val">30%</span></label>
-        <input id="tanpura-vol" type="range" min="0" max="100" value="30"/>
+        <label for="tanpura-vol">Tanpura <span class="badge" id="tanpura-vol-val">30%</span></label>
+        <input id="tanpura-vol" type="range" min="0" max="100" value="30" aria-label="Tanpura volume"/>
       </div>
     </div>
 

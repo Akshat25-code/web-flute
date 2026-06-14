@@ -218,7 +218,11 @@ function highlightKey(idx, on) {
 /* ─── Mode switching ─── */
 function setMode(next) {
   mode = next;
-  document.querySelectorAll('.mtab').forEach(t => t.classList.toggle('active', t.dataset.mode === next));
+  document.querySelectorAll('.mtab').forEach(t => {
+    const isActive = t.dataset.mode === next;
+    t.classList.toggle('active', isActive);
+    t.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+  });
   const learn = next === 'learn';
   $('flute-container').hidden = learn;
   $('learn-bar').hidden = !learn;
@@ -281,8 +285,15 @@ function showToast(html) {
 /* ─── Engine toggle button ─── */
 function updateEngineBtn() {
   const btn = $('engine-btn');
-  if (audio.usingSamples) { btn.textContent = '🎵 Real'; btn.classList.add('on'); }
-  else { btn.textContent = audio.samplesAvailable ? '🎛️ Synth' : '🎛️ Synth'; btn.classList.remove('on'); }
+  if (audio.usingSamples) {
+    btn.textContent = '🎵 Real'; btn.classList.add('on');
+    btn.setAttribute('aria-label', 'Sound: real samples (click to switch to synthesis)');
+    btn.setAttribute('aria-pressed', 'true');
+  } else {
+    btn.textContent = '🎛️ Synth'; btn.classList.remove('on');
+    btn.setAttribute('aria-label', audio.samplesAvailable ? 'Sound: synthesis (click to switch to real samples)' : 'Sound: synthesis (no samples found)');
+    btn.setAttribute('aria-pressed', 'false');
+  }
 }
 
 /* ─── Init ─── */
@@ -319,6 +330,7 @@ async function init() {
     audio.setReverbEnabled(on);
     $('reverb-btn').classList.toggle('on', on);
     $('reverb-btn').textContent = on ? '🔊 Reverb' : '🔇 Reverb';
+    $('reverb-btn').setAttribute('aria-pressed', on ? 'true' : 'false');
   });
 
   // Tanpura drone
@@ -326,11 +338,13 @@ async function init() {
     if (tanpura.playing) {
       tanpura.stop();
       $('tanpura-btn').classList.remove('on');
+      $('tanpura-btn').setAttribute('aria-pressed', 'false');
       $('tanpura-ctrl').hidden = true;
     } else {
       tanpura.setSaMidi(BASE_MIDI + saRoot);
       await tanpura.start();
       $('tanpura-btn').classList.add('on');
+      $('tanpura-btn').setAttribute('aria-pressed', 'true');
       $('tanpura-ctrl').hidden = false;
     }
   });
@@ -381,6 +395,7 @@ async function init() {
   // Mode tabs
   document.querySelectorAll('.mtab').forEach(t =>
     t.addEventListener('click', () => setMode(t.dataset.mode)));
+
 
   // Learn mode
   buildSongSelect();

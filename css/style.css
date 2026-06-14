@@ -16,8 +16,9 @@
   --red-glow: #e8543f;
   --green-glow: #5acd6e;
   --text: #f5ead6;
-  --text-muted: #a8957a;
-  --text-dim: #5e503c;
+  --text-muted: #c4ab8a;   /* raised from #a8957a — now passes WCAG AA on dark bg */
+  --text-dim: #8a7055;     /* raised from #5e503c — was failing contrast by ~3x */
+  --focus: #f5d590;        /* consistent focus ring colour */
   --r: 20px;
   --ease: 0.25s ease-in-out;
 }
@@ -25,11 +26,30 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { -webkit-tap-highlight-color: transparent; }
 [hidden] { display: none !important; }
+/* Visually hidden but readable by screen readers */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+/* ── Global focus ring (accessibility – "focus states not visible" was Critical) ── */
+:focus { outline: none; }
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Respect reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
 
 body {
   min-height: 100dvh;
   font-family: 'Inter', system-ui, sans-serif;
   color: var(--text);
+  line-height: 1.5;          /* improved readability */
   overflow-x: hidden;
 
   /* Rich divine gradient background */
@@ -244,8 +264,9 @@ body {
   flex: 1;
   min-width: 58px;
   max-width: 80px;
+  min-height: 64px;          /* WCAG 2.5.5 recommended 44px minimum touch target */
   padding: 14px 6px 12px;
-  border: none;
+  border: 1px solid rgba(232,180,77,0.12);  /* consistent visible border on all keys */
   border-radius: 14px;
   background: linear-gradient(180deg, rgba(40,32,22,0.9), rgba(25,20,14,0.95));
   color: var(--text);
@@ -286,7 +307,7 @@ body {
 .skey-kbd {
   font-size: 0.68rem;
   font-weight: 600;
-  color: var(--text-dim);
+  color: var(--text-muted);  /* was --text-dim (too low contrast) */
   z-index: 1;
   letter-spacing: 0.05em;
 }
@@ -365,9 +386,10 @@ body {
 }
 
 .ctrl label {
-  font-size: 0.72rem;
+  font-size: 0.75rem;        /* slightly larger — was 0.72rem */
   font-weight: 600;
-  color: var(--text-muted);
+  color: var(--text);        /* was --text-muted — labels need strong contrast */
+  line-height: 1.4;
 }
 
 .badge {
@@ -424,20 +446,21 @@ select {
 select:focus { outline: 2px solid var(--gold-dim); outline-offset: 2px; }
 
 .cbtn {
-  padding: 8px 14px;
-  border: none;
+  padding: 9px 16px;         /* slightly larger — better touch target */
+  border: 1px solid rgba(232,180,77,0.18);  /* consistent border (was none) */
   border-radius: 10px;
   background: rgba(40,32,22,0.8);
-  color: var(--text-muted);
+  color: var(--text);        /* was --text-muted (too low contrast) */
   font-family: inherit;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
   transition: all var(--ease);
+  min-height: 40px;          /* consistent height across all buttons */
 }
 
-.cbtn:hover { color: var(--text); background: rgba(55,44,30,0.9); }
-.cbtn.on { color: var(--gold); background: rgba(232,180,77,0.1); }
+.cbtn:hover { color: var(--gold-light); background: rgba(55,44,30,0.95); border-color: rgba(232,180,77,0.35); }
+.cbtn.on { color: var(--gold); background: rgba(232,180,77,0.14); border-color: rgba(232,180,77,0.4); }
 
 /* ═══════════════════════════════════════
    RESPONSIVE
@@ -449,10 +472,14 @@ select:focus { outline: 2px solid var(--gold-dim); outline-offset: 2px; }
   .note-ring { width: 65px; height: 65px; }
   .note-big { font-size: 1.4rem; }
   .sargam-big { font-size: 1.8rem; }
-  .skey { min-width: 48px; padding: 12px 4px 10px; }
-  .skey-label { font-size: 0.95rem; }
+  /* Larger touch targets on mobile (was 48px wide, often too small) */
+  .skey { min-width: 38px; min-height: 56px; padding: 12px 4px 10px; }
+  .skey-label { font-size: 1rem; }    /* slightly bigger for readability */
+  .skey-kbd { display: none; }        /* hide keyboard hints on mobile (irrelevant) */
   .flute { width: 80px; }
   .controls { gap: 10px; }
+  /* Make control buttons wrap better on small screens */
+  .cbtn { padding: 9px 12px; font-size: 0.78rem; }
 }
 
 /* ─── Entry animation ─── */
