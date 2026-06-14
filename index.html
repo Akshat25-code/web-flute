@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <title>Web Flute – Indian Bansuri</title>
+  <meta name="description" content="Play a beautiful Indian Bansuri flute in your browser. Free Play if you know how, or follow guided tutorials to learn."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+  <!-- Particle canvas for sparkle effects -->
+  <canvas id="particles"></canvas>
+
+  <!-- ─── First-visit onboarding overlay ─── -->
+  <div class="overlay" id="onboarding">
+    <div class="overlay-card">
+      <h2>🪈 Welcome to the Web Flute</h2>
+      <p>An Indian Bansuri you can play right in your browser.</p>
+      <div class="overlay-choices">
+        <button class="choice" data-goto="free">
+          <span class="choice-emoji">🎶</span>
+          <span class="choice-title">I can play</span>
+          <span class="choice-sub">Jump straight into Free Play</span>
+        </button>
+        <button class="choice" data-goto="learn">
+          <span class="choice-emoji">🎓</span>
+          <span class="choice-title">Teach me</span>
+          <span class="choice-sub">Follow a guided tutorial</span>
+        </button>
+      </div>
+      <button class="overlay-skip" id="overlay-skip">Just let me look around →</button>
+    </div>
+  </div>
+
+  <main class="app">
+
+    <!-- ─── Title ─── -->
+    <header class="title-bar">
+      <h1>🪈 <span class="title-text">बाँसुरी</span></h1>
+      <p class="subtitle">Web Flute • Indian Bansuri</p>
+    </header>
+
+    <!-- ─── Mode tabs ─── -->
+    <nav class="mode-tabs" id="mode-tabs">
+      <button class="mtab active" data-mode="free">🎶 Free Play</button>
+      <button class="mtab" data-mode="learn">🎓 Learn</button>
+    </nav>
+
+    <!-- ─── Now Playing ─── -->
+    <div class="now-playing" id="now-playing">
+      <div class="note-ring" id="note-ring">
+        <span class="note-big" id="note-big">–</span>
+      </div>
+      <div class="note-info">
+        <span class="sargam-big" id="sargam-big">–</span>
+        <span class="note-western" id="note-western"></span>
+      </div>
+    </div>
+
+    <!-- ─── LEARN: song bar (only visible in Learn mode) ─── -->
+    <section class="learn-bar" id="learn-bar" hidden>
+      <div class="learn-row">
+        <select id="song-select"></select>
+        <button class="cbtn" id="btn-listen">▶ Listen</button>
+        <button class="cbtn on" id="btn-practice">🎯 Practice</button>
+        <button class="cbtn" id="btn-stop-song">■ Stop</button>
+      </div>
+      <div class="learn-row">
+        <label class="tempo-label">Speed <span class="badge" id="tempo-val">100%</span></label>
+        <input id="tempo" type="range" min="40" max="120" value="100"/>
+        <div class="score-box">
+          <span>Score <b id="score-val">0</b></span>
+          <span>Combo <b id="combo-val">0</b></span>
+          <span>Acc <b id="acc-val">100%</b></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── LEARN: falling-note lane (sits right above the keys) ─── -->
+    <div class="lane-wrap" id="lane-wrap" hidden>
+      <div class="note-lane" id="note-lane"></div>
+      <div class="hit-line"></div>
+    </div>
+
+    <!-- ─── FREE PLAY: SVG Bansuri Flute (Vertical) ─── -->
+    <div class="flute-container" id="flute-container">
+      <svg id="flute-svg" class="flute" viewBox="0 0 120 700" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="bamboo" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#d4a76a"/>
+            <stop offset="25%" stop-color="#c49a5c"/>
+            <stop offset="60%" stop-color="#a67c4a"/>
+            <stop offset="100%" stop-color="#8b6538"/>
+          </linearGradient>
+          <linearGradient id="shine" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="rgba(255,255,255,0.18)"/>
+            <stop offset="40%" stop-color="rgba(255,255,255,0.02)"/>
+            <stop offset="100%" stop-color="rgba(0,0,0,0.08)"/>
+          </linearGradient>
+          <filter id="glow-red">
+            <feGaussianBlur stdDeviation="5" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="glow-green">
+            <feGaussianBlur stdDeviation="4" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        <!-- Bamboo body -->
+        <rect x="25" y="20" width="70" height="660" rx="35" fill="url(#bamboo)"/>
+        <rect x="25" y="20" width="70" height="660" rx="35" fill="url(#shine)"/>
+
+        <!-- Bamboo joints -->
+        <rect x="22" y="120" width="76" height="5" rx="2.5" fill="#8b6538" opacity="0.5"/>
+        <rect x="22" y="320" width="76" height="5" rx="2.5" fill="#8b6538" opacity="0.5"/>
+        <rect x="22" y="520" width="76" height="5" rx="2.5" fill="#8b6538" opacity="0.5"/>
+
+        <!-- Blowing hole -->
+        <ellipse cx="60" cy="60" rx="10" ry="7" fill="#2a1f10" stroke="#5a4020" stroke-width="1"/>
+
+        <!-- 7 finger holes (Sa Re Ga Ma Pa Dha Ni) -->
+        <circle class="fhole" id="hole-0" cx="60" cy="160" r="13"/>
+        <circle class="fhole" id="hole-1" cx="60" cy="240" r="13"/>
+        <circle class="fhole" id="hole-2" cx="60" cy="320" r="13"/>
+        <circle class="fhole" id="hole-3" cx="60" cy="400" r="13"/>
+        <circle class="fhole" id="hole-4" cx="60" cy="480" r="13"/>
+        <circle class="fhole" id="hole-5" cx="60" cy="560" r="13"/>
+        <circle class="fhole" id="hole-6" cx="60" cy="635" r="12"/>
+
+        <!-- Sargam labels next to holes -->
+        <text class="hlabel" x="110" y="165">Sa</text>
+        <text class="hlabel" x="110" y="245">Re</text>
+        <text class="hlabel" x="110" y="325">Ga</text>
+        <text class="hlabel" x="110" y="405">Ma</text>
+        <text class="hlabel" x="110" y="485">Pa</text>
+        <text class="hlabel" x="110" y="565">Dha</text>
+        <text class="hlabel" x="110" y="640">Ni</text>
+      </svg>
+    </div>
+
+    <!-- ─── Sargam Keys (8 – one octave) – shared by both modes ─── -->
+    <div class="keys-row" id="keys-row">
+      <button class="skey" data-idx="0"><span class="skey-label">Sa</span><span class="skey-kbd">A</span></button>
+      <button class="skey" data-idx="1"><span class="skey-label">Re</span><span class="skey-kbd">S</span></button>
+      <button class="skey" data-idx="2"><span class="skey-label">Ga</span><span class="skey-kbd">D</span></button>
+      <button class="skey" data-idx="3"><span class="skey-label">Ma</span><span class="skey-kbd">F</span></button>
+      <button class="skey" data-idx="4"><span class="skey-label">Pa</span><span class="skey-kbd">J</span></button>
+      <button class="skey" data-idx="5"><span class="skey-label">Dha</span><span class="skey-kbd">K</span></button>
+      <button class="skey" data-idx="6"><span class="skey-label">Ni</span><span class="skey-kbd">L</span></button>
+      <button class="skey skey-high" data-idx="7"><span class="skey-label">Sa'</span><span class="skey-kbd">;</span></button>
+    </div>
+
+    <!-- ─── Visualizer ─── -->
+    <div class="viz-wrap">
+      <canvas id="visualizer"></canvas>
+    </div>
+
+    <!-- ─── Controls ─── -->
+    <div class="controls">
+      <div class="ctrl">
+        <label>Volume <span class="badge" id="vol-val">65%</span></label>
+        <input id="volume" type="range" min="0" max="100" value="65"/>
+      </div>
+      <div class="ctrl">
+        <label>Sa Root</label>
+        <select id="sa-root">
+          <option value="0" selected>C</option>
+          <option value="1">C#</option>
+          <option value="2">D</option>
+          <option value="3">D#</option>
+          <option value="4">E</option>
+          <option value="5">F</option>
+          <option value="6">F#</option>
+          <option value="7">G</option>
+          <option value="8">G#</option>
+          <option value="9">A</option>
+          <option value="10">A#</option>
+          <option value="11">B</option>
+        </select>
+      </div>
+      <button id="reverb-btn" class="cbtn on">🔊 Reverb</button>
+      <button id="tanpura-btn" class="cbtn" title="Background drone (Sa–Pa–Sa)">🎻 Tanpura</button>
+      <button id="engine-btn" class="cbtn" title="Switch between real samples and synthesis">🎛️ Synth</button>
+      <div class="ctrl" id="tanpura-ctrl" hidden>
+        <label>Tanpura <span class="badge" id="tanpura-vol-val">30%</span></label>
+        <input id="tanpura-vol" type="range" min="0" max="100" value="30"/>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Song finished toast -->
+  <div class="toast" id="finish-toast" hidden></div>
+
+  <script src="js/audio-engine.js"></script>
+  <script src="js/sample-player.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/tanpura.js"></script>
+  <script src="js/visualizer.js"></script>
+  <script src="js/songs.js"></script>
+  <script src="js/song-player.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

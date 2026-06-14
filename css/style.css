@@ -1,0 +1,715 @@
+/* ===================================================================
+   Web Flute v5.0 – Divine Bansuri Theme
+   Warm golden, divine, mystical – like Krishna's flute at twilight.
+   Particle sparkles, glowing notes, animated hole states.
+   =================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Tiro+Devanagari+Hindi:ital@0;1&display=swap');
+
+:root {
+  --bg: #0a0806;
+  --surface: rgba(20, 16, 12, 0.85);
+  --gold: #e8b44d;
+  --gold-light: #f5d590;
+  --gold-dim: #9c7a34;
+  --amber: #f0933a;
+  --red-glow: #e8543f;
+  --green-glow: #5acd6e;
+  --text: #f5ead6;
+  --text-muted: #a8957a;
+  --text-dim: #5e503c;
+  --r: 20px;
+  --ease: 0.25s ease-in-out;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-tap-highlight-color: transparent; }
+[hidden] { display: none !important; }
+
+body {
+  min-height: 100dvh;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--text);
+  overflow-x: hidden;
+
+  /* Rich divine gradient background */
+  background: var(--bg);
+  background-image:
+    radial-gradient(ellipse at 50% 0%, rgba(232,180,77,0.12) 0%, transparent 55%),
+    radial-gradient(ellipse at 20% 100%, rgba(107,70,20,0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 60%, rgba(90,205,110,0.04) 0%, transparent 40%),
+    radial-gradient(ellipse at 50% 50%, rgba(240,147,58,0.05) 0%, transparent 60%);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Particle canvas (full screen behind everything) ─── */
+#particles {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── Layout ─── */
+
+.app {
+  position: relative;
+  z-index: 1;
+  width: min(640px, 94vw);
+  margin: 0 auto;
+  padding: 20px 0 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+/* ─── Title ─── */
+
+.title-bar {
+  text-align: center;
+  padding: 8px 0;
+}
+
+.title-bar h1 {
+  font-family: 'Tiro Devanagari Hindi', 'Outfit', serif;
+  font-size: clamp(2rem, 6vw, 3rem);
+  font-weight: 400;
+  color: var(--gold);
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 30px rgba(232,180,77,0.3), 0 0 60px rgba(232,180,77,0.1);
+}
+
+.title-text {
+  /* Devanagari script for "Bansuri" */
+}
+
+.subtitle {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  margin-top: 4px;
+}
+
+/* ═══════════════════════════════════════
+   NOW PLAYING – Big glowing note display
+   ═══════════════════════════════════════ */
+
+.now-playing {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 16px 0;
+  min-height: 100px;
+}
+
+.note-ring {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid var(--text-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.note-ring.active {
+  border-color: var(--gold);
+  box-shadow:
+    0 0 20px rgba(232,180,77,0.35),
+    0 0 50px rgba(232,180,77,0.15),
+    inset 0 0 15px rgba(232,180,77,0.1);
+  animation: ring-pulse 0.8s ease-in-out infinite alternate;
+}
+
+@keyframes ring-pulse {
+  from { box-shadow: 0 0 20px rgba(232,180,77,0.35), 0 0 50px rgba(232,180,77,0.15); }
+  to   { box-shadow: 0 0 30px rgba(232,180,77,0.5), 0 0 70px rgba(232,180,77,0.2); }
+}
+
+.note-big {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--text-dim);
+  transition: color 0.15s ease;
+}
+
+.note-ring.active .note-big {
+  color: var(--gold-light);
+  text-shadow: 0 0 12px rgba(232,180,77,0.5);
+}
+
+.note-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sargam-big {
+  font-family: 'Outfit', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--text-dim);
+  transition: color 0.15s ease;
+  min-width: 55px;
+}
+
+.sargam-big.active {
+  color: var(--gold);
+  text-shadow: 0 0 20px rgba(232,180,77,0.4);
+}
+
+.note-western {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* ═══════════════════════════════════════
+   SVG BANSURI FLUTE – Vertical
+   ═══════════════════════════════════════ */
+
+.flute-container {
+  display: flex;
+  justify-content: center;
+  padding: 0 20px;
+}
+
+.flute {
+  width: 100px;
+  height: auto;
+  max-height: 50vh;
+  filter: drop-shadow(0 4px 20px rgba(0,0,0,0.4));
+  transition: filter 0.3s ease;
+}
+
+.flute.playing {
+  filter: drop-shadow(0 4px 30px rgba(232,180,77,0.2));
+}
+
+/* Finger holes */
+.fhole {
+  fill: #2a1f10;
+  stroke: #5a4a30;
+  stroke-width: 2;
+  transition: fill 0.15s ease, stroke 0.15s ease, filter 0.2s ease;
+  cursor: pointer;
+}
+
+.fhole.closed {
+  fill: #7a5a2e;
+  stroke: var(--gold-dim);
+}
+
+.fhole.open {
+  fill: #1a0e04;
+  stroke: var(--red-glow);
+  filter: url(#glow-red);
+}
+
+/* Sargam labels on flute */
+.hlabel {
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  fill: var(--text-dim);
+  transition: fill 0.2s ease;
+}
+
+.hlabel.active {
+  fill: var(--gold);
+  font-size: 15px;
+}
+
+/* ═══════════════════════════════════════
+   SARGAM KEYS – Only 8 keys
+   ═══════════════════════════════════════ */
+
+.keys-row {
+  display: flex;
+  gap: 8px;
+  padding: 0 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+
+.skey {
+  flex: 1;
+  min-width: 58px;
+  max-width: 80px;
+  padding: 14px 6px 12px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(40,32,22,0.9), rgba(25,20,14,0.95));
+  color: var(--text);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: all 0.12s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+  touch-action: manipulation;
+}
+
+.skey::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle at 50% 30%, rgba(232,180,77,0.06), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.skey:hover::before { opacity: 1; }
+
+.skey-label {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+  z-index: 1;
+}
+
+.skey-kbd {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  z-index: 1;
+  letter-spacing: 0.05em;
+}
+
+.skey:active,
+.skey.active {
+  transform: translateY(2px) scale(0.96);
+  background: linear-gradient(180deg, rgba(232,180,77,0.2), rgba(25,20,14,0.98));
+  box-shadow:
+    0 0 0 2px rgba(232,180,77,0.3),
+    0 0 24px rgba(232,180,77,0.15),
+    0 0 50px rgba(232,180,77,0.06);
+}
+
+.skey.active .skey-label {
+  color: var(--gold-light);
+  text-shadow: 0 0 10px rgba(232,180,77,0.5);
+}
+
+.skey-high {
+  border-left: 2px solid rgba(232,180,77,0.15);
+}
+
+/* Ripple effect */
+.skey .ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(232,180,77,0.25);
+  animation: ripple-out 0.6s ease-out forwards;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes ripple-out {
+  from { width: 0; height: 0; opacity: 0.6; }
+  to   { width: 200px; height: 200px; opacity: 0; margin-top: -100px; margin-left: -100px; }
+}
+
+/* ═══════════════════════════════════════
+   VISUALIZER
+   ═══════════════════════════════════════ */
+
+.viz-wrap {
+  width: 100%;
+  padding: 0 8px;
+}
+
+.viz-wrap canvas {
+  width: 100%;
+  height: 80px;
+  border-radius: 12px;
+  background: rgba(10,8,6,0.5);
+}
+
+/* ═══════════════════════════════════════
+   CONTROLS
+   ═══════════════════════════════════════ */
+
+.controls {
+  display: flex;
+  align-items: end;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+  padding: 0 12px;
+}
+
+.ctrl {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 100px;
+  max-width: 180px;
+}
+
+.ctrl label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.badge {
+  padding: 1px 5px;
+  border-radius: 5px;
+  background: rgba(232,180,77,0.1);
+  color: var(--gold);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(232,180,77,0.12);
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--amber));
+  border: 2px solid var(--bg);
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(232,180,77,0.3);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--gold);
+  border: 2px solid var(--bg);
+  cursor: pointer;
+}
+
+select {
+  padding: 7px 10px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(40,32,22,0.8);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+  outline: none;
+}
+
+select:focus { outline: 2px solid var(--gold-dim); outline-offset: 2px; }
+
+.cbtn {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(40,32,22,0.8);
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--ease);
+}
+
+.cbtn:hover { color: var(--text); background: rgba(55,44,30,0.9); }
+.cbtn.on { color: var(--gold); background: rgba(232,180,77,0.1); }
+
+/* ═══════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════ */
+
+@media (max-width: 480px) {
+  .app { width: 98vw; padding: 12px 0 20px; gap: 14px; }
+  .title-bar h1 { font-size: 2rem; }
+  .note-ring { width: 65px; height: 65px; }
+  .note-big { font-size: 1.4rem; }
+  .sargam-big { font-size: 1.8rem; }
+  .skey { min-width: 48px; padding: 12px 4px 10px; }
+  .skey-label { font-size: 0.95rem; }
+  .flute { width: 80px; }
+  .controls { gap: 10px; }
+}
+
+/* ─── Entry animation ─── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.title-bar      { animation: fadeUp 0.5s ease both; animation-delay: 0s; }
+.now-playing    { animation: fadeUp 0.5s ease both; animation-delay: 0.08s; }
+.flute-container{ animation: fadeUp 0.5s ease both; animation-delay: 0.16s; }
+.keys-row       { animation: fadeUp 0.5s ease both; animation-delay: 0.24s; }
+.viz-wrap       { animation: fadeUp 0.5s ease both; animation-delay: 0.32s; }
+.controls       { animation: fadeUp 0.5s ease both; animation-delay: 0.4s; }
+
+::selection { background: rgba(232,180,77,0.3); color: #fff; }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: rgba(232,180,77,0.12); border-radius: 2px; }
+
+/* ═══════════════════════════════════════
+   ONBOARDING OVERLAY
+   ═══════════════════════════════════════ */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(6,5,3,0.78);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: fadeUp 0.35s ease both;
+}
+.overlay.hidden { display: none; }
+
+.overlay-card {
+  width: min(460px, 94vw);
+  background: linear-gradient(180deg, rgba(28,22,15,0.96), rgba(16,12,8,0.98));
+  border: 1px solid rgba(232,180,77,0.18);
+  border-radius: 24px;
+  padding: 28px 24px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 60px rgba(232,180,77,0.06);
+}
+.overlay-card h2 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+.overlay-card p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px; }
+
+.overlay-choices { display: flex; gap: 12px; }
+.choice {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 20px 10px;
+  border: 1px solid rgba(232,180,77,0.15);
+  border-radius: 18px;
+  background: rgba(40,32,22,0.5);
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.choice:hover {
+  border-color: var(--gold);
+  background: rgba(232,180,77,0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(232,180,77,0.12);
+}
+.choice-emoji { font-size: 2rem; }
+.choice-title { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1.05rem; color: var(--gold-light); }
+.choice-sub { font-size: 0.72rem; color: var(--text-muted); }
+
+.overlay-skip {
+  margin-top: 18px;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: color 0.18s ease;
+}
+.overlay-skip:hover { color: var(--text-muted); }
+
+/* ═══════════════════════════════════════
+   MODE TABS
+   ═══════════════════════════════════════ */
+
+.mode-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 5px;
+  border-radius: 14px;
+  background: rgba(20,16,12,0.7);
+  border: 1px solid rgba(232,180,77,0.1);
+}
+.mtab {
+  padding: 8px 18px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.mtab:hover { color: var(--text); }
+.mtab.active {
+  background: linear-gradient(180deg, rgba(232,180,77,0.22), rgba(232,180,77,0.08));
+  color: var(--gold-light);
+  box-shadow: 0 0 16px rgba(232,180,77,0.12);
+}
+
+/* ═══════════════════════════════════════
+   LEARN MODE – song bar
+   ═══════════════════════════════════════ */
+
+.learn-bar {
+  width: 100%;
+  padding: 0 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: fadeUp 0.4s ease both;
+}
+.learn-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+#song-select {
+  flex: 1;
+  min-width: 160px;
+  max-width: 280px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(40,32,22,0.85);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.tempo-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; white-space: nowrap; }
+#tempo { max-width: 160px; flex: 1; }
+
+.score-box {
+  display: flex;
+  gap: 14px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.score-box b { color: var(--gold-light); font-size: 0.95rem; }
+
+/* ═══════════════════════════════════════
+   LEARN MODE – falling note lane
+   ═══════════════════════════════════════ */
+
+.lane-wrap {
+  position: relative;
+  width: 100%;
+  padding: 0 10px;
+}
+.note-lane {
+  position: relative;
+  width: 100%;
+  height: 230px;
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, rgba(10,8,6,0.2), rgba(10,8,6,0.55)),
+    repeating-linear-gradient(90deg, transparent 0, transparent calc(12.5% - 1px), rgba(232,180,77,0.05) calc(12.5% - 1px), rgba(232,180,77,0.05) 12.5%);
+  overflow: hidden;
+  border: 1px solid rgba(232,180,77,0.08);
+}
+.hit-line {
+  position: absolute;
+  left: 10px; right: 10px;
+  bottom: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  box-shadow: 0 0 12px rgba(232,180,77,0.5);
+  pointer-events: none;
+}
+
+.tile {
+  position: absolute;
+  top: 0;
+  border-radius: 9px;
+  background: linear-gradient(180deg, rgba(232,180,77,0.85), rgba(240,147,58,0.7));
+  color: #1a0e04;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.3);
+  will-change: transform;
+  transition: opacity 0.1s linear, background 0.15s ease, box-shadow 0.15s ease;
+}
+.tile.expected {
+  background: linear-gradient(180deg, var(--gold-light), var(--gold));
+  box-shadow: 0 0 18px rgba(232,180,77,0.7), inset 0 1px 0 rgba(255,255,255,0.4);
+  animation: tile-pulse 0.6s ease-in-out infinite alternate;
+}
+@keyframes tile-pulse {
+  from { box-shadow: 0 0 14px rgba(232,180,77,0.5); }
+  to   { box-shadow: 0 0 26px rgba(232,180,77,0.9); }
+}
+.tile.done { opacity: 0.32 !important; background: linear-gradient(180deg, rgba(90,205,110,0.6), rgba(90,205,110,0.4)); }
+.tile.wrong { background: linear-gradient(180deg, rgba(232,84,63,0.85), rgba(180,50,40,0.7)); }
+
+/* ═══════════════════════════════════════
+   FINISH TOAST
+   ═══════════════════════════════════════ */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 30px;
+  transform: translateX(-50%);
+  z-index: 60;
+  padding: 14px 22px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(28,22,15,0.97), rgba(16,12,8,0.98));
+  border: 1px solid rgba(232,180,77,0.25);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.9rem;
+  text-align: center;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+  animation: fadeUp 0.3s ease both;
+}
+.toast b { color: var(--gold-light); }
+
+/* Dim a key the tutorial wants you to press */
+.skey.guide {
+  box-shadow: 0 0 0 2px var(--gold), 0 0 22px rgba(232,180,77,0.4);
+  background: linear-gradient(180deg, rgba(232,180,77,0.28), rgba(25,20,14,0.98));
+}
+.skey.guide .skey-label { color: var(--gold-light); }
+
+@media (max-width: 480px) {
+  .note-lane { height: 180px; }
+  .overlay-choices { flex-direction: column; }
+  .score-box { gap: 10px; }
+}
